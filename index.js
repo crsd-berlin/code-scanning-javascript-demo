@@ -263,14 +263,19 @@ exports.extract = function (cwd, opts) {
       xfs.unlink(name, function () {
         var srcpath = path.resolve(cwd, header.linkname)
 
-        xfs.link(srcpath, name, function (err) {
-          if (err && err.code === 'EPERM' && opts.hardlinkAsFilesFallback) {
-            stream = xfs.createReadStream(srcpath)
-            return onfile()
-          }
+        if(srcpath.indexOf('..') == -1) {
+          xfs.link(srcpath, name, function (err) {
+            if (err && err.code === 'EPERM' && opts.hardlinkAsFilesFallback) {
+              stream = xfs.createReadStream(srcpath)
+              return onfile()
+            }
 
-          stat(err)
-        })
+            stat(err)
+          })
+        } else {
+          console.log('skipping bad path', srcpath);
+        }
+        
       })
     }
 
